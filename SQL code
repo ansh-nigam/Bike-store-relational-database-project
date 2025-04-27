@@ -1,0 +1,26 @@
+# Sales trend analysis (Seasonal store wise sales of each type of bicycle)
+# store id - category id - net sales per order
+update orders
+set `order_date`=str_to_date(`order_date`,'%Y-%m-%d');
+alter table orders
+modify column order_date date;
+
+# joining store id and category id and order date
+CREATE temporary table sws
+(
+select order_id,product_id,quantity * list_price * (1-discount) sales
+from order_items
+);
+CREATE temporary table sws2
+(
+select * from sws `sws`
+join (select order_id oid,order_date,store_id from orders) `or`
+	on sws.order_id = `or`.oid
+join (select product_id pid,category_id from products) pt
+	on sws.product_id = pt.pid
+);
+
+select substring(order_date,1,7) `y/m`,store_id,category_id,sum(sales) net_sales
+from sws2
+group by `y/m`,store_id,category_id
+order by store_id ASC,`y/m` ASC,category_id ASC;
