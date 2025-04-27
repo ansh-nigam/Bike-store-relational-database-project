@@ -1,0 +1,44 @@
+df = read.csv('store_sales.csv')
+str(df)
+df$y.m= paste0(df$y.m,'-01')
+df$y.m = as.Date(df$y.m, format = '%Y-%m-%d')
+break1= seq(as.Date('2015-12-31'),as.Date('2018-12-31'),by = 'year')
+year = cut(df$y.m, breaks = break1, labels = c(2016,2017,2018))
+df=cbind(df,year)
+rm(year,break1)
+df$store_id=as.factor(df$store_id)
+df$category_id=as.factor(df$category_id)
+
+library (ggplot2)
+# All categories
+ggplot(df,aes(y.m,net_sales))+
+  geom_point()+
+  geom_line(aes(color = store_id))+
+  facet_wrap(~category_id)+
+  labs(x = 'Year-Month', y='Sales')+
+  theme_bw()
+
+# Categories one by one
+#1
+ggplot(df[which(df$category_id==1),],
+       aes(y.m,net_sales))+
+  geom_point()+
+  geom_line(aes(color = store_id))+
+  labs(x = 'Year-Month', y='Sales')+
+  theme_bw()
+
+# All store
+ggplot(df,aes(y.m,net_sales))+
+  geom_point()+
+  geom_line(aes(color = category_id))+
+  facet_wrap(~store_id, nrow = 3)+
+  labs(x = 'Year-Month', y='Sales')+
+  theme_bw()
+# Stores one by one
+# 1
+ggplot(df[which(df$store_id==1),],
+       aes(y.m,net_sales))+
+  geom_point()+
+  geom_line(aes(color = category_id))+
+  labs(x = 'Year-Month', y='Sales')+
+  theme_bw()
